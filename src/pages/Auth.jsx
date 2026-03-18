@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 const Auth = () => {
@@ -11,7 +11,7 @@ const Auth = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const { login } = useAuth();
+  const { login, register } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const redirectTo = searchParams.get('redirect') || '/dashboard';
@@ -20,8 +20,15 @@ const Auth = () => {
     e.preventDefault();
     setError('');
     setLoading(true);
+
     setTimeout(() => {
-      const result = login(email, password);
+      let result;
+      if (isLogin) {
+        result = login(email, password);
+      } else {
+        result = register(name, email, password);
+      }
+
       setLoading(false);
       if (result.success) {
         if (result.role === 'admin') {
@@ -36,28 +43,13 @@ const Auth = () => {
   };
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'var(--bg-light)' }}
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'var(--bg-light)' }} 
       className="auth-page">
 
-      {/* Main auth area */}
-      <div className="auth-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: '4rem' }}>
-        <div style={{ alignSelf: 'flex-start', maxWidth: '500px', width: '100%', margin: '0 auto 1rem' }}>
-          <button
-            onClick={() => navigate(-1)}
-            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-muted-light)', fontWeight: 600, fontSize: '0.85rem', background: 'none', border: 'none', cursor: 'pointer', padding: '0.5rem 0' }}
-          >
-            <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }}>arrow_back</span>
-            Back
-          </button>
-        </div>
+      <div className="auth-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: '1.5rem' }}>
         <div className="auth-card">
-          <h2>{isLogin ? 'Welcome back' : 'Create your account'}</h2>
+          <h2>{isLogin ? 'Welcome back' : 'Welcome'}</h2>
           <p className="subtitle">{isLogin ? 'Access your curated refurbished tech deals' : 'Join our premium trade-in community'}</p>
-
-          {/* Admin hint */}
-          <div style={{ marginBottom: '1.5rem', padding: '0.75rem 1rem', background: 'rgba(22,197,95,0.06)', border: '1px solid rgba(22,197,95,0.15)', borderRadius: '10px', fontSize: '0.7rem', color: '#64748b', textAlign: 'center' }}>
-            💡 Admin? Use <strong>admin@phonezone.in</strong> / <strong>admin123</strong>
-          </div>
 
           <div className="auth-tabs">
             <button className={`auth-tab ${isLogin ? 'active' : ''}`} onClick={() => { setIsLogin(true); setError(''); }}>Sign In</button>
@@ -65,7 +57,7 @@ const Auth = () => {
           </div>
 
           {error && (
-            <div style={{ padding: '0.75rem 1rem', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '10px', color: '#dc2626', fontSize: '0.8rem', marginBottom: '1rem', textAlign: 'center' }}>
+            <div style={{ padding: '0.75rem 1rem', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)', borderRadius: '10px', color: '#ef4444', fontSize: '0.8rem', marginBottom: '1.5rem', textAlign: 'center' }}>
               {error}
             </div>
           )}
@@ -73,30 +65,42 @@ const Auth = () => {
           <form onSubmit={handleSubmit}>
             {!isLogin && (
               <div className="form-group">
-                <label className="form-label">Full Name</label>
+                <label className="form-label">
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>person</span>
+                    Full Name
+                  </div>
+                </label>
                 <div className="form-input-wrap">
-                  <span className="material-symbols-outlined">person</span>
-                  <input type="text" className="form-input" placeholder="John Doe" value={name} onChange={e => setName(e.target.value)} required />
+                  <input type="text" className="form-input" placeholder="John Doe" value={name} onChange={e => setName(e.target.value)} required 
+                    style={{ paddingLeft: '1rem' }} />
                 </div>
               </div>
             )}
 
             <div className="form-group">
-              <label className="form-label">Email</label>
+              <label className="form-label">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>mail</span>
+                  Email Address
+                </div>
+              </label>
               <div className="form-input-wrap">
-                <span className="material-symbols-outlined">mail</span>
                 <input type="email" className="form-input" placeholder="name@company.com"
-                  value={email} onChange={e => setEmail(e.target.value)} required />
+                  value={email} onChange={e => setEmail(e.target.value)} required 
+                  style={{ paddingLeft: '1rem' }} />
               </div>
             </div>
 
             <div className="form-group">
               <label className="form-label">
-                Password
-                {isLogin && <a href="#" onClick={e => e.preventDefault()}>Forgot?</a>}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>lock</span>
+                  Password
+                </div>
+                {isLogin && <a href="#" onClick={e => e.preventDefault()} style={{ marginLeft: 'auto' }}>Forgot?</a>}
               </label>
               <div className="form-input-wrap" style={{ position: 'relative' }}>
-                <span className="material-symbols-outlined">lock</span>
                 <input
                   type={showPassword ? 'text' : 'password'}
                   className="form-input"
@@ -104,10 +108,23 @@ const Auth = () => {
                   value={password}
                   onChange={e => setPassword(e.target.value)}
                   required
-                  style={{ paddingRight: '3rem' }}
+                  style={{ paddingLeft: '1rem', paddingRight: '3.5rem' }}
                 />
-                <button type="button"
-                  style={{ position: 'absolute', right: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', background: 'none', border: 'none', cursor: 'pointer' }}
+                <button type="button" 
+                  style={{ 
+                    position: 'absolute', 
+                    right: '0.75rem', 
+                    top: '50.5%', 
+                    transform: 'translateY(-50%)', 
+                    color: '#94a3b8', 
+                    background: 'none', 
+                    border: 'none', 
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '8px'
+                  }}
                   onClick={() => setShowPassword(!showPassword)}>
                   <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }}>
                     {showPassword ? 'visibility_off' : 'visibility'}
@@ -117,7 +134,7 @@ const Auth = () => {
             </div>
 
             <button type="submit" className="btn-primary-full" disabled={loading}
-              style={{ opacity: loading ? 0.7 : 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+              style={{ opacity: loading ? 0.7 : 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', marginTop: '1rem' }}>
               {loading && <div style={{ width: 16, height: 16, border: '2px solid rgba(255,255,255,0.3)', borderTopColor: 'white', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />}
               {isLogin ? 'Sign In to Dashboard' : 'Create Account'}
               <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
@@ -128,8 +145,7 @@ const Auth = () => {
             <span>Or continue with</span>
           </div>
 
-          {/* Only Google — no GitHub */}
-          <button type="button" className="social-btn" style={{ width: '100%' }}>
+          <button type="button" className="social-btn" style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
             <img src="https://cdn-icons-png.flaticon.com/512/2991/2991148.png" style={{ width: 18, height: 18 }} alt="Google" />
             Continue with Google
           </button>
@@ -143,7 +159,7 @@ const Auth = () => {
         </div>
       </div>
 
-      <footer style={{ borderTop: '1px solid var(--border-light)', padding: '1.25rem 2.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+      <footer style={{ borderTop: '1px solid var(--border-dark)', padding: '1.25rem 2.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', background: '#1a2730' }}>
         <p style={{ fontSize: '0.7rem', color: '#94a3b8' }}>© 2026 Phone Zone ReTech. All rights reserved.</p>
         <div style={{ display: 'flex', gap: '2rem' }}>
           {['Privacy Policy', 'Terms of Service', 'Cookie Policy'].map(t => (

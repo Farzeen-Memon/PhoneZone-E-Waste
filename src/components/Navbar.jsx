@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 
 const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const { isDark, toggleTheme } = useTheme();
   const { user, isLoggedIn, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
   const isDashboard = location.pathname === '/dashboard' || location.pathname === '/pz-admin-panel';
   if (isDashboard) return null;
+
+  const isHome = location.pathname === '/';
 
   const handleLogout = () => {
     logout();
@@ -22,12 +22,24 @@ const Navbar = () => {
   return (
     <header className="navbar">
       <div className="navbar-inner">
-        <Link to="/" className="navbar-logo">
-          <div className="navbar-logo-icon">
-            <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', fontWeight: 700 }}>devices</span>
-          </div>
-          <h1 className="navbar-logo-text">Phone Zone <span>ReTech</span></h1>
-        </Link>
+
+        {/* Mobile: back arrow on non-home pages */}
+        <div className="navbar-left">
+          {!isHome && (
+            <button
+              className="mobile-back-btn"
+              onClick={() => navigate(-1)}
+              aria-label="Go back"
+            >
+              <span className="material-symbols-outlined">arrow_back</span>
+            </button>
+          )}
+          <Link to="/" className="navbar-logo" style={{ gap: '0.4rem' }}>
+            <h1 className="navbar-logo-text">
+              Phone Zone <span>ReTech</span>
+            </h1>
+          </Link>
+        </div>
 
         <nav className="navbar-links">
           <Link to="/">Home</Link>
@@ -37,31 +49,26 @@ const Navbar = () => {
         </nav>
 
         <div className="navbar-actions">
-          <button className="theme-toggle" onClick={toggleTheme} aria-label="Toggle theme">
-            <span className="material-symbols-outlined">{isDark ? 'light_mode' : 'dark_mode'}</span>
-          </button>
-
           {isLoggedIn ? (
             <>
-              <Link to="/dashboard" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted-light)' }}>
-                <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--primary)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: 800 }}>
+              <Link to="/dashboard" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted-dark)' }}>
+                <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--primary)', color: '#112118', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: 800 }}>
                   {user?.avatar || user?.name?.[0] || 'U'}
                 </div>
-                <span style={{ display: 'none' }} className="md-show">{user?.name}</span>
               </Link>
               <button onClick={handleLogout} style={{ fontSize: '0.8rem', fontWeight: 700, color: '#ef4444', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>logout</span>
-                <span style={{ display: 'none' }} className="md-show">Logout</span>
+                <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }}>logout</span>
               </button>
             </>
           ) : (
             <>
               <Link to="/auth" className="btn-login">Login</Link>
-              <Link to="/auth" className="btn-signup">Signup</Link>
+              {/* Signup button only on landing page */}
+              {isHome && <Link to="/auth" className="btn-signup">Signup</Link>}
             </>
           )}
 
-          <button className="mobile-toggle" onClick={() => setMobileOpen(!mobileOpen)}>
+          <button className="mobile-toggle" onClick={() => setMobileOpen(!mobileOpen)} aria-label="Menu">
             <span className="material-symbols-outlined">{mobileOpen ? 'close' : 'menu'}</span>
           </button>
         </div>
@@ -69,12 +76,12 @@ const Navbar = () => {
 
       <div className={`mobile-menu ${mobileOpen ? 'open' : ''}`}>
         <Link to="/" onClick={() => setMobileOpen(false)}>Home</Link>
-        <Link to="/sell" onClick={() => setMobileOpen(false)}>Sell</Link>
+        <Link to="/sell" onClick={() => setMobileOpen(false)}>Sell Device</Link>
         <Link to="/track" onClick={() => setMobileOpen(false)}>Track Pickup</Link>
         {isLoggedIn ? (
           <>
             <Link to="/dashboard" onClick={() => setMobileOpen(false)}>My Dashboard</Link>
-            <button onClick={handleLogout} style={{ textAlign: 'left', padding: '0.75rem 1rem', color: '#ef4444', fontWeight: 600, fontSize: '0.9rem' }}>
+            <button onClick={handleLogout} style={{ textAlign: 'left', padding: '0.75rem 1rem', color: '#ef4444', fontWeight: 600, fontSize: '0.9rem', width: '100%' }}>
               Logout
             </button>
           </>

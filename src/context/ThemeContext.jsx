@@ -1,22 +1,16 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useEffect } from 'react';
 
 const ThemeContext = createContext();
 
+// Dark mode is always on — no user toggle
 export const ThemeProvider = ({ children }) => {
-  const [isDark, setIsDark] = useState(() => {
-    const saved = localStorage.getItem('pz-theme');
-    return saved ? saved === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
-  });
-
   useEffect(() => {
-    document.documentElement.classList.toggle('dark', isDark);
-    localStorage.setItem('pz-theme', isDark ? 'dark' : 'light');
-  }, [isDark]);
-
-  const toggleTheme = () => setIsDark(prev => !prev);
+    document.documentElement.classList.add('dark');
+    localStorage.setItem('pz-theme', 'dark');
+  }, []);
 
   return (
-    <ThemeContext.Provider value={{ isDark, toggleTheme }}>
+    <ThemeContext.Provider value={{ isDark: true, toggleTheme: () => {} }}>
       {children}
     </ThemeContext.Provider>
   );

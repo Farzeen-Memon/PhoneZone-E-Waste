@@ -60,6 +60,10 @@ img { max-width: 100%; display: block; }
 /* =================== LAYOUT =================== */
 .container { max-width: 100%; margin: 0 auto; padding: 0 2.5rem; }
 .container-sm { max-width: 900px; margin: 0 auto; padding: 0 1.5rem; }
+@media (max-width: 640px) {
+  .container { padding: 0 1rem; }
+  .container-sm { padding: 0 1rem; }
+}
 
 /* =================== NAVBAR =================== */
 .navbar {
@@ -84,33 +88,50 @@ html.dark .navbar {
   align-items: center;
   justify-content: space-between;
 }
-.navbar-logo {
+/* =================== NAVBAR Logo =================== */
+.navbar-left {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  cursor: pointer;
 }
-.navbar-logo-icon {
-  background: var(--primary);
-  padding: 6px;
-  border-radius: 10px;
-  color: var(--bg-dark);
+.navbar-logo {
   display: flex;
   align-items: center;
-  justify-content: center;
+  cursor: pointer;
+  text-decoration: none;
 }
+/* Icon box removed — text-only brand */
+.navbar-logo-icon { display: none; }
 .navbar-logo-text {
-  font-size: 1.2rem;
+  font-size: 1.15rem;
   font-weight: 800;
   letter-spacing: -0.02em;
+  white-space: nowrap;
 }
 .navbar-logo-text span {
   color: var(--primary);
   font-weight: 900;
   text-transform: uppercase;
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   letter-spacing: 0.15em;
+  margin-left: 0.15rem;
 }
+/* Mobile back button — only shown at ≤768px on non-home pages */
+.mobile-back-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  color: var(--text-dark);
+  background: rgba(255,255,255,0.07);
+  border: none;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+.mobile-back-btn:hover { background: rgba(22,197,95,0.18); color: var(--primary); }
 .navbar-links {
   display: flex;
   align-items: center;
@@ -150,23 +171,7 @@ html.dark .btn-login { color: var(--text-dark); }
 }
 .btn-signup:hover { background: var(--primary-hover); transform: scale(1.02); }
 
-.theme-toggle {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #f1f5f9;
-  color: #475569;
-  transition: all 0.2s;
-  font-size: 1.25rem;
-}
-html.dark .theme-toggle {
-  background: rgba(255,255,255,0.08);
-  color: #e2e8f0;
-}
-.theme-toggle:hover { background: rgba(22,197,95,0.15); color: var(--primary); }
+/* theme-toggle removed — dark mode forced always */
 
 /* Mobile nav toggle */
 .mobile-toggle {
@@ -213,6 +218,10 @@ html.dark .mobile-menu {
 @media (max-width: 768px) {
   .navbar-links, .navbar-actions .btn-login { display: none; }
   .mobile-toggle { display: flex; }
+  .mobile-back-btn { display: flex; }
+  .navbar-logo-text { font-size: 1rem; }
+  .navbar-logo-text span { font-size: 0.6rem; }
+  .navbar-inner { padding: 0 1rem; height: 60px; }
 }
 
 /* =================== HERO =================== */
@@ -572,17 +581,61 @@ html.dark .process-step p { color: var(--text-muted-dark); }
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  background: #112118 !important; /* Force dark background */
+}
+.auth-page .form-label {
+  color: #94a3b8;
+}
+.auth-page .form-input {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+.auth-page .auth-card h2 {
+  color: white;
+}
+.auth-page .auth-footer-text {
+  color: #94a3b8;
+}
+.auth-page .auth-tab {
+  color: #94a3b8;
+}
+.auth-page .auth-tab.active {
+  color: white;
+  background: rgba(255, 255, 255, 0.1);
+}
+.auth-page .auth-tabs {
+  background: rgba(255, 255, 255, 0.05);
+}
+.auth-page .social-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+.auth-page .social-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
 }
 .auth-container {
   flex: 1;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 3rem 1rem;
+  padding: 3rem 1.25rem;
 }
 .auth-card {
   width: 100%;
   max-width: 500px;
+  background: var(--surface-light);
+  border: 1px solid var(--border-light);
+  border-radius: 1.25rem;
+  padding: 2.5rem;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+}
+html.dark .auth-card {
+  background: #1a2730;
+  border-color: rgba(255,255,255,0.07);
+  box-shadow: 0 4px 32px rgba(0,0,0,0.3);
 }
 .auth-card h2 {
   font-size: 2rem;
@@ -637,34 +690,33 @@ html.dark .auth-tab.active { background: var(--surface-dark); color: var(--text-
 .form-input-wrap {
   position: relative;
 }
-.form-input-wrap .material-symbols-outlined {
-  position: absolute;
-  left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #94a3b8;
-  font-size: 1.25rem;
+/* Hide old icons that were direct children of the wrap */
+.form-input-wrap > .material-symbols-outlined {
+  display: none;
 }
 .form-input {
   width: 100%;
   padding: 0.875rem 1rem 0.875rem 2.75rem;
   border: 1px solid var(--border-light);
   border-radius: 10px;
-  background: var(--surface-light);
+  background: #f8fafc;
   font-size: 0.875rem;
   color: var(--text-light);
   transition: all 0.2s;
 }
 html.dark .form-input {
-  background: var(--surface-dark);
-  border-color: var(--border-dark);
+  background: rgba(255,255,255,0.05);
+  border-color: rgba(255,255,255,0.1);
   color: var(--text-dark);
 }
 .form-input:focus {
   border-color: var(--primary);
   box-shadow: 0 0 0 3px rgba(22,197,95,0.15);
+  background: var(--surface-light);
 }
+html.dark .form-input:focus { background: rgba(255,255,255,0.08); }
 .form-input::placeholder { color: #94a3b8; }
+html.dark .form-input::placeholder { color: rgba(255,255,255,0.3); }
 
 .btn-primary-full {
   width: 100%;
@@ -812,11 +864,18 @@ html.dark .sell-form-label { color: var(--text-muted-dark); }
   color: var(--text-light);
 }
 html.dark .sell-select {
-  background: rgba(255,255,255,0.04);
-  border-color: var(--border-dark);
+  background: rgba(255,255,255,0.05);
+  border-color: rgba(255,255,255,0.1);
   color: var(--text-dark);
 }
-.sell-select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(22,197,95,0.15); }
+.sell-select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(22,197,95,0.15); outline: none; }
+
+@media (max-width: 640px) {
+  .sell-form-body { padding: 1.25rem 1rem; }
+  .sell-form-card { border-radius: 0.75rem; overflow: hidden; }
+  .sell-header h1 { font-size: 1.5rem; }
+  .sell-page { padding: 1rem 0; }
+}
 
 .condition-btns { display: flex; gap: 0.5rem; }
 .condition-btn {
