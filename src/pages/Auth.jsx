@@ -39,25 +39,8 @@ const Auth = () => {
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'var(--bg-light)' }}
       className="auth-page">
 
-      {/* Header */}
-      <header className="navbar">
-        <div className="navbar-inner" style={{ maxWidth: '100%', padding: '0 2.5rem' }}>
-          <Link to="/" className="navbar-logo">
-            <div className="navbar-logo-icon">
-              <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', fontWeight: 700 }}>devices</span>
-            </div>
-            <h1 className="navbar-logo-text">Phone Zone <span>ReTech</span></h1>
-          </Link>
-          <nav className="navbar-links">
-            <Link to="/">Home</Link>
-            <Link to="/sell">Sell</Link>
-            <a href="#">About</a>
-          </nav>
-        </div>
-      </header>
-
       {/* Main auth area */}
-      <div className="auth-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <div className="auth-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: '4rem' }}>
         <div style={{ alignSelf: 'flex-start', maxWidth: '500px', width: '100%', margin: '0 auto 1rem' }}>
           <button
             onClick={() => navigate(-1)}
