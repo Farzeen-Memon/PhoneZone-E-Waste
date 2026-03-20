@@ -1,0 +1,290 @@
+/* =================== PREMIUM SELL FLOW DESIGN SYSTEM =================== */
+
+:root {
+  --step-padding: 1.25rem; /* 20px */
+  --step-radius: 1.25rem;  /* 20px */
+}
+
+.sell-flow-wrapper {
+  background: var(--bg-dark);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* 1. Header Section - Fixed height, centered content */
+.sell-header-premium {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(0, 0, 0, 0.9);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  height: 56px;
+  display: flex;
+  align-items: center;
+  padding: 0 var(--step-padding);
+}
+
+.sell-header-inner {
+  display: grid; 
+  grid-template-columns: 1fr;
+  align-items: center;
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.progress-container-header {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+
+.step-label-tiny {
+  font-size: 0.6rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--primary);
+  opacity: 0.7;
+}
+
+.progress-bar-minimal {
+  width: 100%;
+  max-width: 120px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progress-fill-minimal {
+  height: 100%;
+  background: var(--primary);
+  box-shadow: 0 0 10px var(--primary-glow);
+  transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* 2. Content Container - Dense & Balanced */
+.sell-content-main {
+  flex: 1;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 0.75rem var(--step-padding) 8rem; /* Enough bottom padding to not be hidden behind button */
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.step-heading-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.form-step-title {
+  font-size: 1.75rem;
+  font-weight: 900;
+  color: white;
+  letter-spacing: -0.04em;
+  line-height: 1.1;
+  margin: 0;
+}
+
+.form-step-subtitle {
+  font-size: 0.9rem;
+  color: var(--text-muted-dark);
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+/* 3. Category Cards - Expanded Grid */
+.category-grid-balanced {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.85rem;
+}
+
+.category-card-fixed {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--step-radius);
+  padding: 1.25rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.category-card-fixed.active {
+  background: rgba(0, 255, 127, 0.1);
+  border-color: var(--primary);
+  box-shadow: 0 8px 24px rgba(0, 255, 127, 0.15);
+  transform: translateY(-2px);
+}
+
+.cat-icon-wrapper-huge {
+  width: 52px;
+  height: 52px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary);
+}
+
+.category-card-fixed h4 {
+  font-size: 0.9rem;
+  font-weight: 800;
+  margin: 0;
+  color: white;
+}
+
+.category-card-fixed p {
+  font-size: 0.65rem;
+  color: var(--text-muted-dark);
+  margin: 0;
+  line-height: 1.2;
+}
+
+/* 4. Disclaimer Section */
+.disclaimer-card-premium {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-left: 3px solid var(--primary);
+  border-radius: 12px;
+  padding: 0.85rem;
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.disclaimer-text {
+  font-size: 0.7rem;
+  color: var(--text-muted-dark);
+  line-height: 1.4;
+  font-weight: 500;
+}
+
+/* 5. Fixed CTA Area - Safe for Bottom Nav */
+.sell-cta-fixed-footer {
+  position: fixed;
+  bottom: 110px; /* Increased to ensure visibility above bottom nav (~84px + margin) */
+  left: 0;
+  right: 0;
+  padding: 0.5rem var(--step-padding);
+  background: linear-gradient(to top, var(--bg-dark) 90%, transparent);
+  z-index: 500; /* High z-index */
+}
+
+.btn-cta-premium {
+  width: 100%;
+  max-width: 580px;
+  margin: 0 auto;
+  height: 54px;
+  border-radius: 27px;
+  background: var(--primary);
+  color: black;
+  font-weight: 900;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  box-shadow: 0 8px 24px -4px var(--primary-glow);
+  transition: all 0.25s ease;
+  border: none;
+}
+
+.btn-cta-premium:active { transform: scale(0.97); }
+.btn-cta-premium:disabled { opacity: 0.4; filter: grayscale(1); }
+
+/* 6. Form Inputs */
+.form-group-step {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.input-label-premium {
+  font-size: 0.6rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.35);
+  margin-left: 4px;
+}
+
+.input-field-premium {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 1.1rem;
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.input-field-premium:focus { border-color: var(--primary); outline: none; }
+
+/* Upload Buttons */
+.upload-box-premium {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1.5px dashed rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  height: 70px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Checkbox Styling */
+.checkbox-custom {
+  border-radius: 6px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.checkbox-custom.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: black !important; /* Ensure tick is visible */
+  box-shadow: 0 0 12px var(--primary-glow);
+}
+
+.checkbox-custom svg {
+  color: black !important; /* Force black tick on green bg */
+  stroke-width: 4px;
+}
+
+.skip-btn-link {
+  color: var(--primary);
+  font-weight: 800;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  padding: 6px 12px;
+  background: rgba(0, 255, 127, 0.08);
+  border-radius: 10px;
+  border: none;
+}

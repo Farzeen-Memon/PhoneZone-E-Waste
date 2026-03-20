@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 
 const CATEGORY_IMAGES = [
   {
@@ -36,53 +37,25 @@ const Home = () => {
     <div>
       {/* ===== HERO ===== */}
       <section className="hero">
-        <div className="hero-badge">
-          <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>verified</span>
-          Premium Tech Trade-In Service
-        </div>
+        <div className="hero-decoration"></div>
         <h2>
           Recycle &amp; <span className="text-primary">Earn Big</span>
         </h2>
         <p>
-          Get an instant valuation and secure payment for your high-end electronics. Professional handling, zero hassle.
+          Transform your high-end electronics into instant capital. Experienced by 50,000+ users worldwide.
         </p>
         <div>
           <Link to="/sell" className="hero-cta">
-            Sell Your Device
-            <span className="material-symbols-outlined">arrow_forward</span>
+            Start Earning
+            <span className="material-symbols-outlined">north_east</span>
           </Link>
         </div>
 
-        {/* Background orbs */}
-        <div className="hero-bg-orb" style={{ top: 0, right: 0, width: 500, height: 500, background: '#16c55f' }}></div>
-        <div className="hero-bg-orb" style={{ bottom: 0, left: 0, width: 400, height: 400, background: '#3b82f6' }}></div>
+        {/* Floating elements for depth */}
+        <div className="hero-bg-orb" style={{ top: '10%', right: '-5%', width: 300, height: 300, background: 'var(--primary-glow)', filter: 'blur(100px)' }}></div>
       </section>
 
-      {/* ===== CATEGORIES ===== */}
-      <section className="categories-section container" id="categories">
-        <div className="categories-header">
-          <div>
-            <h3>Select Category</h3>
-            <p>Browse our most popular trade-in departments</p>
-          </div>
-          <a href="#" className="categories-link">
-            View all categories
-            <span className="material-symbols-outlined">arrow_forward</span>
-          </a>
-        </div>
-        <div className="categories-grid">
-          {CATEGORY_IMAGES.map((cat, i) => (
-            <Link to="/sell" key={i} className="category-card">
-              <div className="category-overlay"></div>
-              <img src={cat.img} alt={cat.name} loading="lazy" />
-              <div className="category-info">
-                <h4>{cat.name}</h4>
-                <p className={cat.tagClass}>{cat.tag}</p>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </section>
+      {/* ===== CATEGORIES REMOVED ===== */}
 
       {/* ===== HOW IT WORKS ===== */}
       <section className="process-section" id="how-it-works">
@@ -91,18 +64,33 @@ const Home = () => {
             <h3>How It Works</h3>
             <p>From appraisal to payment in four easy steps. Experience the premium standard in tech trade-ins.</p>
           </div>
-          <div className="process-grid">
+          
+          <div className="process-vertical-flow">
+            <div className="process-timeline-line"></div>
             {STEPS.map((step, i) => (
-              <div className="process-step" key={i}>
-                <div style={{ position: 'relative', zIndex: 10, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <motion.div 
+                className="process-step-vertical" 
+                key={i}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: i * 0.15 }}
+                viewport={{ once: true, margin: "-100px" }}
+              >
+                <div className="step-marker">
                   <div className="step-number">{i + 1}</div>
-                  <div className="step-icon-box">
-                    <span className="material-symbols-outlined">{step.icon}</span>
+                </div>
+                <div className="step-content-card">
+                  <div className="step-header">
+                    <div className="step-icon-box">
+                      <span className="material-symbols-outlined">{step.icon}</span>
+                    </div>
+                    <h4>{step.title}</h4>
+                  </div>
+                  <div className="step-body">
+                    <p>{step.desc}</p>
                   </div>
                 </div>
-                <h4>{step.title}</h4>
-                <p>{step.desc}</p>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>

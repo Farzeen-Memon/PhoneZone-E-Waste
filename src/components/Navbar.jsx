@@ -1,95 +1,127 @@
-import React, { useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 const Navbar = () => {
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
   const { user, isLoggedIn, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const dropdownRef = useRef(null);
 
-  const isDashboard = location.pathname === '/dashboard' || location.pathname === '/pz-admin-panel';
-  if (isDashboard) return null;
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setProfileOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const isHome = location.pathname === '/';
+  const isDashboard = location.pathname === '/dashboard';
+  const isAuthPage = location.pathname === '/auth';
+  
+  const isMainSection = ['/', '/dashboard', '/pz-admin-panel'].includes(location.pathname);
+  const showBackButton = !isMainSection && !isAuthPage && !isDashboard;
 
   const handleLogout = () => {
     logout();
     navigate('/');
-    setMobileOpen(false);
+    setProfileOpen(false);
   };
 
-  return (
-    <header className="navbar">
-      <div className="navbar-inner">
+  if (isAuthPage) return null;
 
-        {/* Mobile: back arrow on non-home pages */}
-        <div className="navbar-left">
-          {!isHome && (
-            <button
-              className="mobile-back-btn"
-              onClick={() => navigate(-1)}
-              aria-label="Go back"
-            >
-              <span className="material-symbols-outlined">arrow_back</span>
+  const sellStep = parseInt(searchParams.get('step')) || 1;
+  const showProgress = location.pathname === '/sell';
+
+  return (
+    <header className="navbar" style={{ position: 'sticky', top: 0, zIndex: 1000, background: 'rgba(0,0,0,0.95)', backdropFilter: 'blur(10px)' }}>
+      {showProgress && (
+        <div className="navbar-progress-bar" style={{ position: 'absolute', bottom: 0, left: 0, width: '100%', height: '3px', background: 'rgba(255,255,255,0.05)' }}>
+          <div 
+            style={{ 
+              width: `${(sellStep / 4) * 100}%`, 
+              height: '100%', 
+              background: 'var(--primary)', 
+              boxShadow: '0 0 10px var(--primary-glow)',
+              transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)' 
+            }}
+          />
+        </div>
+      )}
+      <div className="navbar-inner" style={{ height: 60, padding: '0 1.25rem' }}>
+        
+        {/* Left Side: Profile Avatar AND optionally Back button */}
+        <div className="navbar-left" style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          {isLoggedIn ? (
+            <div className="profile-dropdown-container" ref={dropdownRef}>
+              <button 
+                className="profile-avatar-btn" 
+                onClick={() => setProfileOpen(!profileOpen)}
+                style={{ width: 34, height: 34, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', fontSize: '0.75rem' }}
+              >
+                {user?.avatar || (user?.name?.[0] || 'U')}
+              </button>
+              <div className={`profile-dropdown ${profileOpen ? 'open' : ''}`} style={{ left: 0, right: 'auto' }}>
+                <div className="dropdown-user-info">
+                  <span className="name" style={{ fontSize: '0.85rem' }}>{user?.name || 'User'}</span>
+                  <span className="email" style={{ fontSize: '0.7rem' }}>{user?.email}</span>
+                </div>
+                <Link to="/dashboard" className="dropdown-item" onClick={() => setProfileOpen(false)}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }}>dashboard</span>
+                  User Dashboard
+                </Link>
+                {user?.role === 'admin' && (
+                  <Link to="/pz-admin-panel" className="dropdown-item" onClick={() => setProfileOpen(false)}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }}>admin_panel_settings</span>
+                    Vendor Dashboard
+                  </Link>
+                )}
+                <button onClick={handleLogout} className="dropdown-item logout">
+                  <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }}>logout</span>
+                  Logout
+                </button>
+              </div>
+            </div>
+          ) : (
+            <Link to="/" className="navbar-logo-text" style={{ fontSize: '0.9rem' }}>
+              PZ <span>ReTech</span>
+            </Link>
+          )}
+
+          {showBackButton && (
+            <button className="mobile-back-btn" onClick={() => navigate(-1)} style={{ background: 'transparent', border: 'none', color: 'white', display: 'flex', alignItems: 'center' }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }}>arrow_back</span>
             </button>
           )}
-          <Link to="/" className="navbar-logo" style={{ gap: '0.4rem' }}>
-            <h1 className="navbar-logo-text">
-              Phone Zone <span>ReTech</span>
+        </div>
+
+        {/* Center: App Name (Title) */}
+        <div className="navbar-center" style={{ flex: 2, display: 'flex', justifyContent: 'center' }}>
+          <Link to="/" className="navbar-logo" style={{ textAlign: 'center' }}>
+            <h1 className="navbar-logo-text" style={{ fontSize: '1rem', letterSpacing: '-0.02em' }}>
+              Phone Zone <span style={{ fontSize: '0.6rem', opacity: 0.8 }}>ReTech</span>
             </h1>
           </Link>
         </div>
 
-        <nav className="navbar-links">
-          <Link to="/">Home</Link>
-          <Link to="/sell">Sell</Link>
-          <a href="/#how-it-works">Business</a>
-          <a href="/#categories">Support</a>
-        </nav>
-
-        <div className="navbar-actions">
+        {/* Right Side: Notifications */}
+        <div className="navbar-actions" style={{ flex: 1, display: 'flex', justifyContent: 'flex-end' }}>
           {isLoggedIn ? (
-            <>
-              <Link to="/dashboard" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted-dark)' }}>
-                <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--primary)', color: '#112118', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: 800 }}>
-                  {user?.avatar || user?.name?.[0] || 'U'}
-                </div>
-              </Link>
-              <button onClick={handleLogout} style={{ fontSize: '0.8rem', fontWeight: 700, color: '#ef4444', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }}>logout</span>
-              </button>
-            </>
-          ) : (
-            <>
-              <Link to="/auth" className="btn-login">Login</Link>
-              {/* Signup button only on landing page */}
-              {isHome && <Link to="/auth" className="btn-signup">Signup</Link>}
-            </>
-          )}
-
-          <button className="mobile-toggle" onClick={() => setMobileOpen(!mobileOpen)} aria-label="Menu">
-            <span className="material-symbols-outlined">{mobileOpen ? 'close' : 'menu'}</span>
-          </button>
-        </div>
-      </div>
-
-      <div className={`mobile-menu ${mobileOpen ? 'open' : ''}`}>
-        <Link to="/" onClick={() => setMobileOpen(false)}>Home</Link>
-        <Link to="/sell" onClick={() => setMobileOpen(false)}>Sell Device</Link>
-        <Link to="/track" onClick={() => setMobileOpen(false)}>Track Pickup</Link>
-        {isLoggedIn ? (
-          <>
-            <Link to="/dashboard" onClick={() => setMobileOpen(false)}>My Dashboard</Link>
-            <button onClick={handleLogout} style={{ textAlign: 'left', padding: '0.75rem 1rem', color: '#ef4444', fontWeight: 600, fontSize: '0.9rem', width: '100%' }}>
-              Logout
+            <button className="notification-btn" style={{ position: 'relative' }}>
+              <span className="material-symbols-outlined">notifications</span>
+              <div className="notification-dot" style={{ top: 2, right: 2 }}></div>
             </button>
-          </>
-        ) : (
-          <Link to="/auth" onClick={() => setMobileOpen(false)} className="btn-signup" style={{ textAlign: 'center', marginTop: '0.5rem' }}>
-            Sign In / Sign Up
-          </Link>
-        )}
+          ) : (
+            <Link to="/auth" className="btn-signup" style={{ padding: '0.5rem 1rem', fontSize: '0.75rem', borderRadius: '8px' }}>
+              Login
+            </Link>
+          )}
+        </div>
       </div>
     </header>
   );

@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, useNavig
 import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Navbar from './components/Navbar';
+import AnnouncementBar from './components/AnnouncementBar';
 import Footer from './components/Footer';
 import MobileBottomNav from './components/MobileBottomNav';
 
@@ -11,6 +12,7 @@ const Auth = lazy(() => import('./pages/Auth'));
 const Sell = lazy(() => import('./pages/Sell'));
 const UserDashboard = lazy(() => import('./pages/UserDashboard'));
 const VendorDashboard = lazy(() => import('./pages/VendorDashboard'));
+const AdminRequestDetails = lazy(() => import('./pages/AdminRequestDetails'));
 const TrackPickup = lazy(() => import('./pages/TrackPickup'));
 
 const LoadingFallback = () => (
@@ -38,12 +40,14 @@ function AppContent() {
   const location = useLocation();
   const { isLoggedIn } = useAuth();
 
-  const isDashboardPage = location.pathname === '/dashboard' || location.pathname === '/pz-admin-panel';
+  const isDashboardPage = location.pathname === '/dashboard';
+  const isAdminRoute = location.pathname.startsWith('/pz-admin-panel');
   const isAuthPage = location.pathname === '/auth';
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <Navbar />
+      {!isAuthPage && !isAdminRoute && <AnnouncementBar />}
+      {!isAuthPage && !isAdminRoute && <Navbar />}
       <main style={{ flex: 1 }}>
         <Suspense fallback={<LoadingFallback />}>
           <Routes>
@@ -70,17 +74,27 @@ function AppContent() {
                 <VendorDashboard />
               </ProtectedRoute>
             } />
+            <Route path="/pz-admin-panel/request/:id" element={
+              <ProtectedRoute adminOnly={true}>
+                <AdminRequestDetails />
+              </ProtectedRoute>
+            } />
 
-            <Route path="/track" element={<TrackPickup />} />
+            <Route path="/track" element={
+              <ProtectedRoute>
+                <TrackPickup />
+              </ProtectedRoute>
+            } />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Suspense>
       </main>
-      {!isDashboardPage && !isAuthPage && <Footer />}
-      {!isDashboardPage && <MobileBottomNav activePage={
+      {!isDashboardPage && !isAdminRoute && !isAuthPage && <Footer />}
+      {!isAuthPage && !isAdminRoute && <MobileBottomNav activePage={
         location.pathname === '/' ? 'home' :
         location.pathname === '/sell' ? 'sell' :
-        location.pathname === '/dashboard' ? 'dashboard' : 'track'
+        location.pathname === '/track' ? 'track' :
+        location.pathname === '/dashboard' ? 'dashboard' : 'home'
       } />}
     </div>
   );

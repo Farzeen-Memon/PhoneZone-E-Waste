@@ -12,42 +12,48 @@ export const AuthProvider = ({ children }) => {
     return saved ? JSON.parse(saved) : null;
   });
 
-  const login = (email, password) => {
-    // Admin hardcoded credentials
-    if (email === 'admin@phonezone.in' && password === 'admin123') {
-      const adminUser = { name: 'Alex ReTech', email, role: 'admin', avatar: 'AR' };
-      setUser(adminUser);
-      localStorage.setItem('pz-user', JSON.stringify(adminUser));
-      return { success: true, role: 'admin' };
-    }
+  const API_URL = 'http://localhost:5000/api/auth';
 
-    const users = getUsers();
-    const found = users.find(u => u.email === email);
-
-    if (!found) {
-      return { success: false, error: 'Account not found. Please create an account first.' };
+  const login = async (email, password) => {
+    try {
+      const response = await fetch(`${API_URL}/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      const data = await response.json();
+      
+      if (data.success) {
+        setUser(data.user);
+        localStorage.setItem('pz-user', JSON.stringify(data.user));
+        return { success: true, role: data.user.role };
+      } else {
+        return { success: false, error: data.error };
+      }
+    } catch (err) {
+      return { success: false, error: 'Could not connect to the server' };
     }
-    if (found.password !== password) {
-      return { success: false, error: 'Incorrect password. Please try again.' };
-    }
-
-    const loggedIn = { name: found.name, email: found.email, role: 'user', avatar: found.name[0].toUpperCase() + (found.name.split(' ')[1]?.[0]?.toUpperCase() || '') };
-    setUser(loggedIn);
-    localStorage.setItem('pz-user', JSON.stringify(loggedIn));
-    return { success: true, role: 'user' };
   };
 
-  const register = (name, email, password) => {
-    const users = getUsers();
-    if (users.find(u => u.email === email)) {
-      return { success: false, error: 'An account with this email already exists.' };
+  const register = async (name, email, password) => {
+    try {
+      const response = await fetch(`${API_URL}/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password })
+      });
+      const data = await response.json();
+
+      if (data.success) {
+        setUser(data.user);
+        localStorage.setItem('pz-user', JSON.stringify(data.user));
+        return { success: true, role: data.user.role };
+      } else {
+        return { success: false, error: data.error };
+      }
+    } catch (err) {
+      return { success: false, error: 'Could not connect to the server' };
     }
-    const newUser = { name, email, password };
-    saveUsers([...users, newUser]);
-    const loggedIn = { name, email, role: 'user', avatar: name[0].toUpperCase() + (name.split(' ')[1]?.[0]?.toUpperCase() || '') };
-    setUser(loggedIn);
-    localStorage.setItem('pz-user', JSON.stringify(loggedIn));
-    return { success: true, role: 'user' };
   };
 
   const logout = () => {
