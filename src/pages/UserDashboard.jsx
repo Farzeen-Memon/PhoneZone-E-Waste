@@ -21,8 +21,8 @@ const UserDashboard = () => {
     if (!user?.id) return;
     try {
       const [reqRes, notifRes] = await Promise.all([
-        fetch(`http://localhost:5000/api/requests/${user.id}`),
-        fetch(`http://localhost:5000/api/notifications/${user.id}`)
+        fetch(`${import.meta.env.VITE_API_URL}/api/requests/${user.id}`),
+        fetch(`${import.meta.env.VITE_API_URL}/api/notifications/${user.id}`)
       ]);
       const reqData = await reqRes.json();
       const notifData = await notifRes.json();
@@ -44,7 +44,7 @@ const UserDashboard = () => {
         payload.phoneNo = phoneNo;
       }
 
-      const res = await fetch(`http://localhost:5000/api/requests/${id}/reply`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/requests/${id}/reply`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)

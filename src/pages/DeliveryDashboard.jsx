@@ -22,7 +22,7 @@ const DeliveryDashboard = () => {
 
   const fetchRequests = async () => {
     try {
-      const res = await fetch('http://localhost:5000/api/admin/requests');
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/requests`);
       const data = await res.json();
       if (data.success) {
         setRequests(data.requests.filter(r => ['Accepted', 'Pickup scheduled'].includes(r.status)));
@@ -42,7 +42,7 @@ const DeliveryDashboard = () => {
   const handleStatusUpdate = async (id, status) => {
     if (!window.confirm(`Are you sure you want to change status to ${status}?`)) return;
     try {
-      const res = await fetch(`http://localhost:5000/api/admin/requests/${id}/status`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/requests/${id}/status`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status })

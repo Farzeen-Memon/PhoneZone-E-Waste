@@ -80,7 +80,7 @@ const VendorDashboard = () => {
 
   const fetchRequests = async () => {
     try {
-      const res = await fetch('http://localhost:5000/api/admin/requests');
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/requests`);
       const data = await res.json();
       if (data.success) setRequests(data.requests);
     } catch (err) {
@@ -313,7 +313,7 @@ const VendorDashboard = () => {
                         onClick={async () => {
                           if(!window.confirm(`Initiate RazorpayX Test Payout of ₹${r.estimate} to ${r.upiId}?`)) return;
                           try {
-                            const res = await fetch(`http://localhost:5000/api/admin/requests/${r._id}/payout`, { method: 'POST' });
+                            const res = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/requests/${r._id}/payout`, { method: 'POST' });
                             const data = await res.json();
                             if (data.success) { alert(data.message); fetchRequests(); }
                             else alert(data.error);

@@ -15,7 +15,7 @@ const AdminRequestDetails = () => {
   useEffect(() => {
     const fetchRequest = async () => {
       try {
-        const res = await fetch(`http://localhost:5000/api/admin/requests/${id}`);
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/requests/${id}`);
         const data = await res.json();
         if (data.success) setRequest(data.request);
       } catch (err) {
@@ -30,8 +30,8 @@ const AdminRequestDetails = () => {
   const handleStatusUpdate = async (status, quotation = null) => {
     try {
       const endpoint = quotation 
-        ? `http://localhost:5000/api/admin/requests/${id}/accept`
-        : `http://localhost:5000/api/admin/requests/${id}/status`;
+        ? `${import.meta.env.VITE_API_URL}/api/admin/requests/${id}/accept`
+        : `${import.meta.env.VITE_API_URL}/api/admin/requests/${id}/status`;
       
       const body = quotation ? { price: quotation } : { status };
       
@@ -58,7 +58,7 @@ const AdminRequestDetails = () => {
 
   const handleShiprocketGenerate = async () => {
     try {
-      const res = await fetch(`http://localhost:5000/api/admin/requests/${id}/shiprocket`, { method: 'POST' });
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/requests/${id}/shiprocket`, { method: 'POST' });
       const data = await res.json();
       if (data.success) {
         setRequest(prev => ({ ...prev, status: 'Pickup scheduled' }));
@@ -75,7 +75,7 @@ const AdminRequestDetails = () => {
   const handleDecline = async () => {
     if (!window.confirm('Are you sure you want to decline?')) return;
     try {
-      const res = await fetch(`http://localhost:5000/api/admin/requests/${id}/decline`, { method: 'POST' });
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/requests/${id}/decline`, { method: 'POST' });
       const data = await res.json();
       if (data.success) {
         setRequest(prev => ({ ...prev, status: 'Declined' }));
