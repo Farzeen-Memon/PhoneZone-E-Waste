@@ -11,10 +11,20 @@ const Auth = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const { login, register } = useAuth();
+  const { login, register, user, isLoggedIn } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const redirectTo = searchParams.get('redirect') || '/dashboard';
+
+  React.useEffect(() => {
+    if (isLoggedIn && user) {
+      if (user.role === 'admin') {
+        navigate('/pz-admin-panel', { replace: true });
+      } else {
+        navigate(redirectTo, { replace: true });
+      }
+    }
+  }, [isLoggedIn, user, navigate, redirectTo]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

@@ -39,6 +39,8 @@ const requestSchema = new mongoose.Schema({
   address: { type: String, required: true },
   customer: { type: String, required: true },
   email: { type: String, required: true },
+  upiId: { type: String },
+  phoneNo: { type: String },
   createdAt: { type: Date, default: Date.now }
 });
 const SellRequest = mongoose.model('SellRequest', requestSchema);
@@ -81,6 +83,11 @@ app.post('/api/auth/login', async (req, res) => {
       return res.json({ success: true, user: { id: 'admin-pz-01', name: 'Alex ReTech', email, role: 'admin', avatar: 'AR' } });
     }
 
+    // Delivery Partner hardcoded for now
+    if (email === 'delivery@phonezone.in' && password === 'delivery123') {
+      return res.json({ success: true, user: { id: 'delivery-pz-01', name: 'Pickup Partner', email, role: 'delivery', avatar: 'DP' } });
+    }
+
     const user = await User.findOne({ email });
     if (!user) return res.status(400).json({ success: false, error: 'Account not found' });
     if (user.password !== password) return res.status(400).json({ success: false, error: 'Invalid password' });
@@ -116,6 +123,28 @@ app.get('/api/requests/:userId', async (req, res) => {
     res.json({ success: true, requests });
   } catch (err) {
     res.status(500).json({ success: false, error: 'Failed to fetch requests' });
+  }
+});
+
+app.post('/api/requests/:id/reply', async (req, res) => {
+  try {
+    const { action, upiId, phoneNo } = req.body; // 'accept' or 'decline'
+    const request = await SellRequest.findById(req.params.id);
+    if (!request) return res.status(404).json({ success: false, error: 'Request not found' });
+
+    if (action === 'accept') {
+      request.status = 'Pickup scheduled';
+      if (upiId) request.upiId = upiId;
+      if (phoneNo) request.phoneNo = phoneNo;
+      await request.save();
+      return res.json({ success: true, message: 'Offer accepted! Pickup scheduled.' });
+    } else {
+      request.status = 'Declined';
+      await request.save();
+      return res.json({ success: true, message: 'Offer declined.' });
+    }
+  } catch (err) {
+    res.status(500).json({ success: false, error: 'Action failed' });
   }
 });
 
@@ -202,6 +231,31 @@ app.post('/api/admin/requests/:id/status', async (req, res) => {
     res.json({ success: true, message: 'Status updated' });
   } catch (err) {
     res.status(500).json({ success: false, error: 'Failed to update status' });
+  }
+});
+
+app.post('/api/admin/requests/:id/shiprocket', async (req, res) => {
+  try {
+    const request = await SellRequest.findById(req.params.id);
+    if (!request) return res.status(404).json({ success: false, error: 'Request not found' });
+
+    // Simulate Shiprocket API connection & latency
+    await new Promise(resolve => setTimeout(resolve, 800));
+
+    const generatedAwb = 'SR' + Math.floor(10000000 + Math.random() * 90000000);
+    request.status = 'Pickup scheduled';
+    await request.save();
+
+    const newNotification = new Notification({
+      userId: request.userId,
+      message: `Logistics routed via Shiprocket! Tracking AWB: ${generatedAwb}`,
+      type: 'info'
+    });
+    await newNotification.save();
+
+    res.json({ success: true, awb: generatedAwb, message: `Shiprocket Logistics Order Created! AWB: ${generatedAwb}` });
+  } catch (err) {
+    res.status(500).json({ success: false, error: 'Shiprocket Integration Error' });
   }
 });
 

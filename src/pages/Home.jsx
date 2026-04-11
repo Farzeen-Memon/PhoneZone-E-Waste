@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useAuth } from '../context/AuthContext';
 
 const CATEGORY_IMAGES = [
   {
@@ -33,21 +34,22 @@ const STEPS = [
 ];
 
 const Home = () => {
+  const { isAdmin } = useAuth();
+
   return (
     <div>
       {/* ===== HERO ===== */}
       <section className="hero">
         <div className="hero-decoration"></div>
         <h2>
-          Recycle &amp; <span className="text-primary">Earn Big</span>
+          {isAdmin ? 'Manage' : 'Recycle'} &amp; <span className="text-primary">{isAdmin ? 'Sell Requests' : 'Earn Big'}</span>
         </h2>
         <p>
-          Transform your high-end electronics into instant capital. Experienced by 50,000+ users worldwide.
+          {isAdmin ? 'Review and process daily incoming sell requests efficiently.' : 'Transform your high-end electronics into instant capital. Experienced by 50,000+ users worldwide.'}
         </p>
         <div>
-          <Link to="/sell" className="hero-cta">
-            Start Earning
-            <span className="material-symbols-outlined">north_east</span>
+          <Link to={isAdmin ? "/pz-admin-panel" : "/sell"} className="hero-cta">
+            {isAdmin ? 'View Requests' : 'Start Earning'}
           </Link>
         </div>
 

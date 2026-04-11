@@ -7,28 +7,62 @@ const UserDashboard = () => {
   const navigate = useNavigate();
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
-
   const [notifications, setNotifications] = useState([]);
+  
+  const [acceptingReqId, setAcceptingReqId] = useState(null);
+  const [upiId, setUpiId] = useState('');
+  const [phoneNo, setPhoneNo] = useState('');
 
   useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        const [reqRes, notifRes] = await Promise.all([
-          fetch(`http://localhost:5000/api/requests/${user.id}`),
-          fetch(`http://localhost:5000/api/notifications/${user.id}`)
-        ]);
-        const reqData = await reqRes.json();
-        const notifData = await notifRes.json();
-        if (reqData.success) setRequests(reqData.requests.filter(r => r.status !== 'Declined'));
-        if (notifData.success) setNotifications(notifData.notifications);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    if (user?.id) fetchDashboardData();
+    fetchDashboardData();
   }, [user]);
+
+  const fetchDashboardData = async () => {
+    if (!user?.id) return;
+    try {
+      const [reqRes, notifRes] = await Promise.all([
+        fetch(`http://localhost:5000/api/requests/${user.id}`),
+        fetch(`http://localhost:5000/api/notifications/${user.id}`)
+      ]);
+      const reqData = await reqRes.json();
+      const notifData = await notifRes.json();
+      if (reqData.success) setRequests(reqData.requests.filter(r => r.status !== 'Declined'));
+      if (notifData.success) setNotifications(notifData.notifications);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleReplyOffer = async (id, action) => {
+    try {
+      const payload = { action };
+      if (action === 'accept') {
+        if (!upiId || !phoneNo) return alert('Please provide your UPI ID and Phone Number.');
+        payload.upiId = upiId;
+        payload.phoneNo = phoneNo;
+      }
+
+      const res = await fetch(`http://localhost:5000/api/requests/${id}/reply`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (data.success) {
+        setAcceptingReqId(null);
+        setUpiId('');
+        setPhoneNo('');
+        fetchDashboardData(); // Refresh the data to get updated status
+        alert(data.message);
+      } else {
+        alert(data.error);
+      }
+    } catch (err) {
+      alert('Action failed');
+    }
+  };
 
   const handleLogout = () => {
     logout();
@@ -131,8 +165,30 @@ const UserDashboard = () => {
               </div>
 
               <div className="request-actions-row">
-                <button className="btn-primary-neon">Accept Offer</button>
-                <button className="btn-secondary-dark">Decline</button>
+                {req.status === 'Accepted' ? (
+                  acceptingReqId === req._id ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', width: '100%', background: 'rgba(255,255,255,0.02)', padding: '1rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                      <p style={{ fontSize: '0.85rem', color: '#94a3b8', margin: 0 }}>Provide payment details to confirm pickup</p>
+                      <input type="text" placeholder="UPI ID (e.g., number@upi)" value={upiId} onChange={e => setUpiId(e.target.value)} style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(0,0,0,0.3)', color: 'white' }} />
+                      <input type="tel" placeholder="Phone Number" value={phoneNo} onChange={e => setPhoneNo(e.target.value)} style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(0,0,0,0.3)', color: 'white' }} />
+                      <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
+                        <button className="btn-primary-neon" style={{ flex: 1, padding: '0.75rem' }} onClick={() => handleReplyOffer(req._id, 'accept')}>Confirm</button>
+                        <button className="btn-secondary-dark" style={{ flex: 1, padding: '0.75rem' }} onClick={() => setAcceptingReqId(null)}>Cancel</button>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <button className="btn-primary-neon" onClick={() => setAcceptingReqId(req._id)}>Accept Offer</button>
+                      <button className="btn-secondary-dark" onClick={() => handleReplyOffer(req._id, 'decline')}>Decline</button>
+                    </>
+                  )
+                ) : req.status === 'Pending Review' ? (
+                  <button className="btn-secondary-dark" style={{ width: '100%', opacity: 0.5 }} disabled>Evaluating Device...</button>
+                ) : (
+                  <button className="btn-primary-neon" style={{ width: '100%', background: 'rgba(33, 196, 93, 0.1)', color: '#21c45d', boxShadow: 'none' }} disabled>
+                    {req.status}
+                  </button>
+                )}
               </div>
             </div>
           ))

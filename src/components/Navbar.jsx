@@ -62,7 +62,6 @@ const Navbar = () => {
               <button 
                 className="profile-avatar-btn" 
                 onClick={() => setProfileOpen(!profileOpen)}
-                style={{ width: 34, height: 34, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', fontSize: '0.75rem' }}
               >
                 {user?.avatar || (user?.name?.[0] || 'U')}
               </button>

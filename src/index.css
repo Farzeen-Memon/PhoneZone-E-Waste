@@ -371,7 +371,7 @@ img { max-width: 100%; display: block; }
 
 /* =================== ANNOUNCEMENT BAR =================== */
 .announcement-bar {
-  display: none;
+  display: flex;
   width: 100%;
   background: #050a08;
   border-bottom: 1px solid rgba(0, 255, 127, 0.15);
@@ -412,12 +412,6 @@ img { max-width: 100%; display: block; }
 @keyframes marquee {
   0% { transform: translateX(0); }
   100% { transform: translateX(-50%); }
-}
-
-@media (max-width: 768px) {
-  .announcement-bar {
-    display: flex;
-  }
 }
 
 /* =================== NAVBAR =================== */
@@ -577,25 +571,29 @@ html.dark .mobile-toggle { color: var(--text-dark); }
 }
 
 .profile-avatar-btn {
-  width: 34px;
-  height: 34px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
-  background: var(--primary);
-  color: #112118;
+  background: linear-gradient(135deg, #21c45d 0%, #16a34a 100%);
+  color: #052e16;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.75rem;
+  font-size: 0.85rem;
   font-weight: 800;
   cursor: pointer;
-  border: 2px solid transparent;
-  transition: all 0.2s;
+  border: 2px solid rgba(33, 196, 93, 0.5);
+  transition: all 0.25s ease;
   overflow: hidden;
+  box-shadow: 0 0 14px rgba(33, 196, 93, 0.45), 0 0 4px rgba(33, 196, 93, 0.2) inset;
+  filter: brightness(1.08);
+  letter-spacing: -0.02em;
 }
 
 .profile-avatar-btn:hover {
-  box-shadow: 0 0 15px var(--primary-glow);
-  transform: scale(1.05);
+  box-shadow: 0 0 24px rgba(33, 196, 93, 0.75), 0 0 8px rgba(33, 196, 93, 0.3) inset;
+  transform: scale(1.1);
+  border-color: rgba(33, 196, 93, 0.8);
 }
 
 .profile-dropdown {

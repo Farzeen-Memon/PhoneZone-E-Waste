@@ -13,6 +13,7 @@ const Sell = lazy(() => import('./pages/Sell'));
 const UserDashboard = lazy(() => import('./pages/UserDashboard'));
 const VendorDashboard = lazy(() => import('./pages/VendorDashboard'));
 const AdminRequestDetails = lazy(() => import('./pages/AdminRequestDetails'));
+const DeliveryDashboard = lazy(() => import('./pages/DeliveryDashboard'));
 const TrackPickup = lazy(() => import('./pages/TrackPickup'));
 
 const LoadingFallback = () => (
@@ -22,17 +23,30 @@ const LoadingFallback = () => (
   </div>
 );
 
-// Protected route — redirects to /auth with ?redirect= if not logged in
-function ProtectedRoute({ children, adminOnly = false }) {
-  const { isLoggedIn, isAdmin } = useAuth();
+function ProtectedRoute({ children, adminOnly = false, deliveryOnly = false }) {
+  const { isLoggedIn, isAdmin, isDelivery } = useAuth();
   const location = useLocation();
 
   if (!isLoggedIn) {
     return <Navigate to={`/auth?redirect=${encodeURIComponent(location.pathname)}`} replace />;
   }
+  
   if (adminOnly && !isAdmin) {
     return <Navigate to="/dashboard" replace />;
   }
+
+  if (deliveryOnly && !isDelivery) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  if (!adminOnly && !deliveryOnly && isAdmin && location.pathname === '/dashboard') {
+    return <Navigate to="/pz-admin-panel" replace />;
+  }
+
+  if (!adminOnly && !deliveryOnly && isDelivery && location.pathname === '/dashboard') {
+    return <Navigate to="/pz-delivery-panel" replace />;
+  }
+
   return children;
 }
 
@@ -42,12 +56,15 @@ function AppContent() {
 
   const isDashboardPage = location.pathname === '/dashboard';
   const isAdminRoute = location.pathname.startsWith('/pz-admin-panel');
+  const isDeliveryRoute = location.pathname.startsWith('/pz-delivery-panel');
   const isAuthPage = location.pathname === '/auth';
+
+  const hideNav = isAuthPage || isAdminRoute || isDeliveryRoute;
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      {!isAuthPage && !isAdminRoute && <AnnouncementBar />}
-      {!isAuthPage && !isAdminRoute && <Navbar />}
+      {!hideNav && <AnnouncementBar />}
+      {!hideNav && <Navbar />}
       <main style={{ flex: 1 }}>
         <Suspense fallback={<LoadingFallback />}>
           <Routes>
@@ -80,6 +97,12 @@ function AppContent() {
               </ProtectedRoute>
             } />
 
+            <Route path="/pz-delivery-panel" element={
+              <ProtectedRoute deliveryOnly={true}>
+                <DeliveryDashboard />
+              </ProtectedRoute>
+            } />
+
             <Route path="/track" element={
               <ProtectedRoute>
                 <TrackPickup />
@@ -89,8 +112,8 @@ function AppContent() {
           </Routes>
         </Suspense>
       </main>
-      {!isDashboardPage && !isAdminRoute && !isAuthPage && <Footer />}
-      {!isAuthPage && !isAdminRoute && <MobileBottomNav activePage={
+      {!isDashboardPage && !hideNav && <Footer />}
+      {!hideNav && <MobileBottomNav activePage={
         location.pathname === '/' ? 'home' :
         location.pathname === '/sell' ? 'sell' :
         location.pathname === '/track' ? 'track' :
